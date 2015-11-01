@@ -1,6 +1,6 @@
 function setState(which){
-	$("section").hide();
-	var toShow = "section#" + which;
+	$("div.content").hide();
+	var toShow = "div.content#" + which;
 	
 	$(toShow).show();
 };
