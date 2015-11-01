@@ -158,8 +158,8 @@ img {
 }
 
 header {
-  width:270px;
-  float:left;
+  width:100%;
+  float:top;
   position:fixed;
   -webkit-font-smoothing:subpixel-antialiased;
 }
@@ -171,11 +171,11 @@ header ul {
   background: #f4f4f4;
   border-radius:5px;
   border:1px solid #e0e0e0;
-  width:270px;
+  width:456px;
 }
 
 header li {
-  width:89px;
+  width:75px;
   float:left;
   border-right:1px solid #e0e0e0;
   height:40px;
@@ -195,8 +195,7 @@ header ul a {
   color:#999;
   display:block;
   text-align:center;
-  padding-top:6px;
-  height:34px;
+  height:40px;
 }
 
 header ul a:hover {
@@ -212,21 +211,24 @@ strong {
   font-weight:700;
 }
 
-header ul li + li + li {
+header ul li + li + li + li + li + li{
   border-right:none;
-  width:89px;
+  width:76px;
 }
 
 header ul a strong {
   font-size:14px;
   display:block;
   color:#222;
+  padding-top:10px;
+  vertical-align:middle;
 }
 
 section {
-  width:500px;
-  float:right;
-  padding-bottom:50px;
+  width:100%;
+  float: none;
+  padding-bottom:200px;
+  padding-top:200px;
 }
 
 small {
@@ -241,8 +243,8 @@ hr {
 }
 
 footer {
-  width:270px;
-  float:left;
+  width:100%;
+  float:bottom;
   position:fixed;
   bottom:50px;
   -webkit-font-smoothing:subpixel-antialiased;

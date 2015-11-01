@@ -6,7 +6,7 @@ function setState(which){
 };
 
 $(document).ready(function(){
-	setState("main");
+	setState("Home");
 	
 	$("div#menu li").each(function(index) {
 		$(this).click(function() {
