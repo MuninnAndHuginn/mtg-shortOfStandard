@@ -1,7 +1,10 @@
 function setState(which){
 	$("div.content").hide();
 	var toShow = "div.content#" + which;
-	
+	var toLoad = "div.content#" + which + " div.extern";
+	var loadingUrl = "./externs/"+ which + ".html";
+
+	$(toLoad).load(loadingUrl);
 	$(toShow).show();
 };
 
