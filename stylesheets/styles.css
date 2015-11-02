@@ -329,8 +329,3 @@ footer {
     color:#444;
   }
 }
-
-.maindeck td + td + td {
-	float:right;
-}
-}
