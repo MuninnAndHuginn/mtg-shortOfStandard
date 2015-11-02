@@ -251,7 +251,7 @@ footer {
   float:bottom;
   background: #ffffff;
   position:fixed;
-  bottom:50px;
+  bottom:0px;
   -webkit-font-smoothing:subpixel-antialiased;
 }
 
@@ -328,4 +328,9 @@ footer {
     font-size:12pt;
     color:#444;
   }
+}
+
+.maindeck td + td + td {
+	float:right;
+}
 }
