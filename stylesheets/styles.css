@@ -160,6 +160,9 @@ img {
 header {
   width:100%;
   float:top;
+  background: #ffffff;
+  top:0px;
+  padding-top:10px;
   position:fixed;
   -webkit-font-smoothing:subpixel-antialiased;
 }
@@ -227,8 +230,9 @@ header ul a strong {
 section {
   width:100%;
   float: none;
+  margin-top:110px;
   padding-bottom:200px;
-  padding-top:200px;
+  padding-top:0px;
 }
 
 small {
@@ -245,6 +249,7 @@ hr {
 footer {
   width:100%;
   float:bottom;
+  background: #ffffff;
   position:fixed;
   bottom:50px;
   -webkit-font-smoothing:subpixel-antialiased;
