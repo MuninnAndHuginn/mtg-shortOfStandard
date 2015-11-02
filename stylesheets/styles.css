@@ -329,3 +329,8 @@ footer {
     color:#444;
   }
 }
+
+img#card_pic {
+  position:fixed;
+  top:100px;
+}
