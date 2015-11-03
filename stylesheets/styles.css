@@ -97,6 +97,10 @@ th {
   color:#444;
 }
 
+table#events .bold {
+   font-weight:700;
+}
+
 img {
   max-width:100%;
 }
