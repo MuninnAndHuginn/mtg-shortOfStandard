@@ -113,6 +113,7 @@ header {
   padding-top:10px;
   position:fixed;
   -webkit-font-smoothing:subpixel-antialiased;
+  z-index: 99;
 }
 
 header ul {
@@ -281,4 +282,5 @@ footer {
 img#card_pic {
   position:fixed;
   top:100px;
+  z-index: 100;
 }
