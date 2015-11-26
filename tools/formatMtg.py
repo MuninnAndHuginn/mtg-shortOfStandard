@@ -17,35 +17,36 @@ class MtgConsts:
     MOUNTAIN='Mountain'
     ISLAND='Island'
     
-    TABLE_FORMAT="""
+    TABLE_FORMAT="""\
 <div class="maindeck">
-  <table class="cardgroup" cellpadding="10">
-    <tbody>
-      <tr>
-        <td valign="top" width="40%">
-          <b>
-            <i class="decltotals">%(LEFT_SIDE_TITLEs)</i>
-          </b>
-          <hr size="1" width="50%" align="left" class="decltotals"/>
-          %(LEFT_SIDE_ENTRIES)s
-          <br/>
-        </td>
-        <td valign="top" width="40%">
-          <b>
-            <i class="decltotals">%(RIGHT_SIDE_TITLE)s</i>
-          </b>
-          <hr size="1" width="50%" align="left" class="decltotals"/>
-          %(RIGHT_SIDE_ENTRIES)s
-          <br/>
-        </td>
-        <td valign="top" width="185">
-          <br/>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <br/>
-</div>
+<table class="cardgroup" cellpadding="10">
+<tbody>
+<tr>
+<td valign="top" width="40%">
+<b>
+<i class="decltotals">{LEFT_SIDE_TITLE}</i>
+</b>
+<hr size="1" width="50%" align="left" class="decltotals"/>
+{LEFT_SIDE_ENTRIES}
+<br/>
+</td>
+<td valign="top" width="40%">
+<b>
+<i class="decltotals">{RIGHT_SIDE_TITLE}</i>
+</b>
+<hr size="1" width="50%" align="left" class="decltotals"/>
+{RIGHT_SIDE_ENTRIES}
+<br/>
+</td>
+<td valign="top" width="185">
+<img src="" id="card_pic" style="max-height: 223px; max-width: 310px; text-align: center; vertical-align: middle;" alt=""/><br/>
+<br/>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+</div>\
 """
     
 def getColors(item):
@@ -54,10 +55,15 @@ def getColors(item):
     for entry in item:
         try:
             if "img" == entry.tagName:
+                altAttr = entry.getAttribute("alt")
+                if altAttr is None:
+                    # Skip this (it's probably the set image)
+                    continue
+                
+                # Safe to init return list
                 if returnList is None:
                     returnList = []
-                    
-                altAttr = entry.getAttribute("alt")
+                
                 if MtgConsts.GREEN in altAttr and MtgConsts.GREEN not in returnList:
                     returnList.append(MtgConsts.GREEN)
                 if MtgConsts.BLUE in altAttr and MtgConsts.BLUE not in returnList:
@@ -137,6 +143,22 @@ def getCardName(item):
             continue
     return None
     
+def generateTable(leftTitle, leftItems, rightTitle, rightItems):
+    LEFT_ENTRY = ""
+    for item in leftItems:
+        for entry in item:
+            LEFT_ENTRY += str(entry) + '\n'
+            
+    RIGHT_ENTRY = ""
+    for item in rightItems:
+        for entry in item:
+            RIGHT_ENTRY += str(entry) + '\n'
+            
+    format_dict = {"LEFT_SIDE_TITLE":leftTitle + " (%d)"%(len(leftItems)),
+                   "LEFT_SIDE_ENTRIES":LEFT_ENTRY,
+                   "RIGHT_SIDE_TITLE":rightTitle + " (%d)"%(len(rightItems)),
+                   "RIGHT_SIDE_ENTRIES":RIGHT_ENTRY}
+    return MtgConsts.TABLE_FORMAT.format(**format_dict)
     
     
 # BEGIN MAIN CODE
@@ -166,18 +188,25 @@ for c in columns:
             curList.append([entry])
         elif "a" == entry.tagName:
             entryList = []
-            # Grab the quantity, stripped
-            entryList.append(entry.previousSibling.strip())
-            # Grab the link tag with the card name
+            
+            # Grab the card set image
+            setImage = entry.previousSiblingElement
+            # Add the quantity, stripped
+            entryList.append(setImage.previousSibling.strip())
+            # Add the set Image
+            entryList.append(setImage)
+            # Add the link tag with the card name
             entryList.append(entry)
 
-            # loop and grab the next sibling images until we earch a break
+            # loop and add the next sibling images until we earch a break
             nextSibling = entry.nextSiblingElement
             while not nextSibling.tagName == "br":
                 if "img" == nextSibling.tagName:
                     entryList.append(nextSibling)
                 nextSibling = nextSibling.nextSiblingElement
-
+            # Add the <br/> after the images
+            if nextSibling.tagName == "br":
+                entryList.append(nextSibling)
             # add the items as an entry.
             curList.append(entryList)
             
@@ -217,27 +246,27 @@ def getListForAppend(title, colors):
     if colors is not None:
         (isHybrid, isMulti, isMono, isColorless) = analyzeColors(colors)
         if isHybrid:
-            print "HYBRID", colors
+            #print "HYBRID", colors
             if lands:
-                print "WTF!"
+                #print "WTF!"
                 return None
             elif spells:
                 return HYBRID_SPELLS
             elif creatures:
                 return HYBRID_CREATURES
         elif isMulti:
-            print "MULTI", colors
+            #print "MULTI", colors
             if lands:
-                print "WTF!"
+                #print "WTF!"
                 return None
             elif spells:
                 return MULTI_SPELLS
             elif creatures:
                 return MULTI_CREATURES
         elif isMono:
-            print "MONO", colors
+            #print "MONO", colors
             if lands:
-                print "WTF!"
+                #print "WTF!"
                 return None
             elif spells:
                 if MtgConsts.RED in colors:
@@ -262,9 +291,9 @@ def getListForAppend(title, colors):
                 if MtgConsts.BLUE in colors:
                     return BLUE_CREATURES
         elif isColorless:
-            print "COLORLESS", colors
+            #print "COLORLESS", colors
             if lands:
-                print "WTF!"
+                #print "WTF!"
                 return None
             elif spells:
                 return COLORLESS_SPELLS
@@ -273,81 +302,36 @@ def getListForAppend(title, colors):
     else:
         # No color data, must be land?            
         if isItemBasicLand(item):
-            print "BASIC LAND"
+            #print "BASIC LAND"
             return LAND_BASIC
         else:
-            print "NON-BASIC LAND"
+            #print "NON-BASIC LAND"
             return LAND_NONBASIC
             
             
 # Print the output without the surrounding table and a top level image tag to be loaded with the right card
 
 for (title, items) in titlesToEntries.iteritems():
-    print "********************************"
-    print title
+    #print "********************************"
+    #print title
     for item in items:
         cardName = getCardName(item)
-        if cardName is not None:
-            print "---------------------------"
-            print cardName
-        else:
+        if cardName is None:
             # No card name, not really a card!
             continue
             
         # Add to the correct list.
         getListForAppend(title, getColors(item)).append(item)
 
-print """<img src="" id="card_pic" style="max-height: 223px; max-width: 310px; text-align: center; vertical-align: middle;" alt=""/><br/>"""        
+def printSplitTables():
+    print generateTable("Green Creatures", GREEN_CREATURES, "Green Spells", GREEN_SPELLS)
+    print generateTable("Black Creatures", BLACK_CREATURES, "Black Spells", BLACK_SPELLS)
+    print generateTable("Blue Creatures", BLUE_CREATURES, "Blue Spells", BLUE_SPELLS)
+    print generateTable("Red Creatures", RED_CREATURES, "Red Spells", RED_SPELLS)
+    print generateTable("White Creatures", WHITE_CREATURES, "White Spells", WHITE_SPELLS)
+    print generateTable("Multi-Colored Creatures", MULTI_CREATURES, "Multi-Colored Spells", MULTI_SPELLS)
+    print generateTable("Hybrid Creatures", HYBRID_CREATURES, "Hybrid Spells", HYBRID_SPELLS)
+    print generateTable("Colorless Creatures", COLORLESS_CREATURES, "Colorless Spells", COLORLESS_SPELLS)
+    print generateTable("Basic Land", LAND_BASIC, "Non-Basic Land", LAND_NONBASIC)
 
-GREEN_LEFT_ENTRY = ""
-for item in GREEN_CREATURES:
-    for entry in item:
-        try:
-            GREEN_LEFT_ENTRY += entry.getHTML() + '\n'
-        except AttributeError:
-            GREEN_LEFT_ENTRY += entry + '\n'
-
-GREEN_RIGHT_ENTRY = ""
-for item in GREEN_SPELLS:
-    for entry in item:
-        try:
-            GREEN_RIGHT_ENTRY += entry.getHTML() + '\n'
-        except AttributeError:
-            GREEN_RIGHT_ENTRY += entry + '\n'
-
-print MtgConsts.TABLE_FORMAT.format({'LEFT_SIDE_TITLE':'Green Creatures (%d)'%(len(GREEN_CREATURES)),
-                                     'LEFT_SIDE_ENTRIES':GREEN_LEFT_ENTRY,
-                                     'RIGHT_SIDE_TITLE':'Green Spells (%d)'%(len(GREEN_SPELLS)),
-                                     'RIGHT_SIDE_ENTRIES':GREEN_RIGHT_ENTRY})
-
-print BLACK_CREATURES
-
-print BLACK_SPELLS
-
-print BLUE_CREATURES
-
-print BLUE_SPELLS
-
-print WHITE_CREATURES
-
-print WHITE_SPELLS
-
-print RED_CREATURES
-
-print RED_SPELLS
-
-print MULTI_CREATURES
-
-print MULTI_SPELLS
-
-print HYBRID_CREATURES
-
-print HYBRID_SPELLS
-
-print COLORLESS_CREATURES
-
-print COLORLESS_SPELLS
-
-print LAND_BASIC
-
-print LAND_NONBASIC
+printSplitTables()
