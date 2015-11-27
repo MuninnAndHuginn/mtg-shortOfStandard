@@ -1,7 +1,41 @@
 #!/usr/bin/env python
 
 from AdvancedHTMLParser import *
+import re
+import sys
 
+BAD_IMAGES_RE = r'src="file:.*/Sets'
+GOOD_IMAGES_PREFIX = r'src="images/Sets' 
+
+# Define containers for each table column
+GREEN_CREATURES = []
+GREEN_SPELLS = []
+
+BLACK_CREATURES = []
+BLACK_SPELLS = []
+
+BLUE_CREATURES = []
+BLUE_SPELLS = []
+
+WHITE_CREATURES = []
+WHITE_SPELLS = []
+
+RED_CREATURES = []
+RED_SPELLS = []
+
+MULTI_CREATURES = []
+MULTI_SPELLS = []
+
+HYBRID_CREATURES = []
+HYBRID_SPELLS = []
+
+COLORLESS_CREATURES = []
+COLORLESS_SPELLS = []
+
+LAND_BASIC = []
+LAND_NONBASIC = []
+
+# Define some constants to reference (matches input HTML code...)
 class MtgConsts:
     RED='R'
     BLUE='U'
@@ -158,87 +192,23 @@ def generateTable(leftTitle, leftItems, rightTitle, rightItems):
                    "LEFT_SIDE_ENTRIES":LEFT_ENTRY,
                    "RIGHT_SIDE_TITLE":rightTitle + " (%d)"%(len(rightItems)),
                    "RIGHT_SIDE_ENTRIES":RIGHT_ENTRY}
-    return MtgConsts.TABLE_FORMAT.format(**format_dict)
+    # Now is a good time to replace that bad images path for the sets with the correct one
+    return re.sub(BAD_IMAGES_RE, GOOD_IMAGES_PREFIX, MtgConsts.TABLE_FORMAT.format(**format_dict))
     
+def printSplitTables():
+    print generateTable("Green Creatures", GREEN_CREATURES, "Green Spells", GREEN_SPELLS)
+    print generateTable("Black Creatures", BLACK_CREATURES, "Black Spells", BLACK_SPELLS)
+    print generateTable("Blue Creatures", BLUE_CREATURES, "Blue Spells", BLUE_SPELLS)
+    print generateTable("Red Creatures", RED_CREATURES, "Red Spells", RED_SPELLS)
+    print generateTable("White Creatures", WHITE_CREATURES, "White Spells", WHITE_SPELLS)
+    print generateTable("Multi-Colored Creatures", MULTI_CREATURES, "Multi-Colored Spells", MULTI_SPELLS)
+    print generateTable("Hybrid Creatures", HYBRID_CREATURES, "Hybrid Spells", HYBRID_SPELLS)
+    print generateTable("Colorless Creatures", COLORLESS_CREATURES, "Colorless Spells", COLORLESS_SPELLS)
+    print generateTable("Basic Land", LAND_BASIC, "Non-Basic Land", LAND_NONBASIC)
+
+def getListForAppend(title, item):
+    colors = getColors(item)
     
-# BEGIN MAIN CODE
-parser = AdvancedHTMLParser("test.html")
-
-maindeck = parser.getElementsByClassName("maindeck")[0]
-
-columns = maindeck.getChildren().getElementsByTagName("td")
-
-titlesToEntries = {}
-
-for c in columns:
-    curTitle = None
-    curList = None
-    for entry in c.getChildren():
-        # check for b tag, it should contain the title.
-        if "b" == entry.tagName:
-            # grab the i tag text.
-            curTitle = entry.getChildren().getElementsByTagName("i")[0].text
-
-            # insert into map if not there.
-            if not curTitle in titlesToEntries.keys():
-                titlesToEntries[curTitle] = []
-            
-            curList = titlesToEntries[curTitle]
-        elif "hr" == entry.tagName or "br" == entry.tagName:
-            curList.append([entry])
-        elif "a" == entry.tagName:
-            entryList = []
-            
-            # Grab the card set image
-            setImage = entry.previousSiblingElement
-            # Add the quantity, stripped
-            entryList.append(setImage.previousSibling.strip())
-            # Add the set Image
-            entryList.append(setImage)
-            # Add the link tag with the card name
-            entryList.append(entry)
-
-            # loop and add the next sibling images until we earch a break
-            nextSibling = entry.nextSiblingElement
-            while not nextSibling.tagName == "br":
-                if "img" == nextSibling.tagName:
-                    entryList.append(nextSibling)
-                nextSibling = nextSibling.nextSiblingElement
-            # Add the <br/> after the images
-            if nextSibling.tagName == "br":
-                entryList.append(nextSibling)
-            # add the items as an entry.
-            curList.append(entryList)
-            
-
-GREEN_CREATURES = []
-GREEN_SPELLS = []
-
-BLACK_CREATURES = []
-BLACK_SPELLS = []
-
-BLUE_CREATURES = []
-BLUE_SPELLS = []
-
-WHITE_CREATURES = []
-WHITE_SPELLS = []
-
-RED_CREATURES = []
-RED_SPELLS = []
-
-MULTI_CREATURES = []
-MULTI_SPELLS = []
-
-HYBRID_CREATURES = []
-HYBRID_SPELLS = []
-
-COLORLESS_CREATURES = []
-COLORLESS_SPELLS = []
-
-LAND_BASIC = []
-LAND_NONBASIC = []
-
-def getListForAppend(title, colors):
     lands = "Land" in title
     spells = "Other" in title
     creatures = "Creatures" in title
@@ -308,30 +278,75 @@ def getListForAppend(title, colors):
             #print "NON-BASIC LAND"
             return LAND_NONBASIC
             
-            
-# Print the output without the surrounding table and a top level image tag to be loaded with the right card
+def processInputHtml(fileName):    
+    # BEGIN MAIN CODE
+    parser = AdvancedHTMLParser(fileName)
+    
+    maindeck = parser.getElementsByClassName("maindeck")[0]
+    
+    columns = maindeck.getChildren().getElementsByTagName("td")
+    
+    titlesToEntries = {}
+    
+    for c in columns:
+        curTitle = None
+        curList = None
+        for entry in c.getChildren():
+            # check for b tag, it should contain the title.
+            if "b" == entry.tagName:
+                # grab the i tag text.
+                curTitle = entry.getChildren().getElementsByTagName("i")[0].text
+    
+                # insert into map if not there.
+                if not curTitle in titlesToEntries.keys():
+                    titlesToEntries[curTitle] = []
+                
+                curList = titlesToEntries[curTitle]
+            elif "hr" == entry.tagName or "br" == entry.tagName:
+                curList.append([entry])
+            elif "a" == entry.tagName:
+                entryList = []
+                
+                # Grab the card set image
+                setImage = entry.previousSiblingElement
+                # Add the quantity, stripped
+                entryList.append(setImage.previousSibling.strip())
+                # Add the set Image
+                entryList.append(setImage)
+                # Add the link tag with the card name
+                entryList.append(entry)
+    
+                # loop and add the next sibling images until we earch a break
+                nextSibling = entry.nextSiblingElement
+                while not nextSibling.tagName == "br":
+                    if "img" == nextSibling.tagName:
+                        entryList.append(nextSibling)
+                    nextSibling = nextSibling.nextSiblingElement
+                # Add the <br/> after the images
+                if nextSibling.tagName == "br":
+                    entryList.append(nextSibling)
+                # add the items as an entry.
+                curList.append(entryList)
 
-for (title, items) in titlesToEntries.iteritems():
-    #print "********************************"
-    #print title
-    for item in items:
-        cardName = getCardName(item)
-        if cardName is None:
-            # No card name, not really a card!
-            continue
-            
-        # Add to the correct list.
-        getListForAppend(title, getColors(item)).append(item)
 
-def printSplitTables():
-    print generateTable("Green Creatures", GREEN_CREATURES, "Green Spells", GREEN_SPELLS)
-    print generateTable("Black Creatures", BLACK_CREATURES, "Black Spells", BLACK_SPELLS)
-    print generateTable("Blue Creatures", BLUE_CREATURES, "Blue Spells", BLUE_SPELLS)
-    print generateTable("Red Creatures", RED_CREATURES, "Red Spells", RED_SPELLS)
-    print generateTable("White Creatures", WHITE_CREATURES, "White Spells", WHITE_SPELLS)
-    print generateTable("Multi-Colored Creatures", MULTI_CREATURES, "Multi-Colored Spells", MULTI_SPELLS)
-    print generateTable("Hybrid Creatures", HYBRID_CREATURES, "Hybrid Spells", HYBRID_SPELLS)
-    print generateTable("Colorless Creatures", COLORLESS_CREATURES, "Colorless Spells", COLORLESS_SPELLS)
-    print generateTable("Basic Land", LAND_BASIC, "Non-Basic Land", LAND_NONBASIC)
+    for (title, items) in titlesToEntries.iteritems():
+        #print "********************************"
+        #print title
+        for item in items:
+            cardName = getCardName(item)
+            if cardName is None:
+                # No card name, not really a card!
+                continue
+                
+            # Add to the correct list.
+            getListForAppend(title, item).append(item)
 
-printSplitTables()
+    # Send all the tables to the screen
+    printSplitTables()
+    
+    
+def main():
+    processInputHtml(sys.argv[1])
+    
+if __name__ == "__main__":
+    main()
