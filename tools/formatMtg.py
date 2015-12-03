@@ -178,10 +178,6 @@ def getCardName(item):
     return None
     
 def generateTable(leftTitle, leftItems, rightTitle, rightItems):
-    # SKIP EMPTY TABLES!!!
-    if not leftItems and not rightItems:
-        return ""
-
     LEFT_ENTRY = ""
     for item in leftItems:
         for entry in item:
