@@ -209,6 +209,7 @@ def printSplitTables():
     colorless = generateTable("Colorless Creatures", COLORLESS_CREATURES, "Colorless Spells", COLORLESS_SPELLS)
     land = generateTable("Basic Land", LAND_BASIC, "Non-Basic Land", LAND_NONBASIC)
 
+    print "<hr/>"
     if colorless:
         print colorless
     if black:
@@ -227,6 +228,7 @@ def printSplitTables():
         print multi
     if land:
         print land
+    print "<hr/>"
 
 def getListForAppend(title, item):
     colors = getColors(item)
