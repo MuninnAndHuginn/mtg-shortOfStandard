@@ -178,6 +178,9 @@ def getCardName(item):
     return None
     
 def generateTable(leftTitle, leftItems, rightTitle, rightItems):
+    if not leftItems and not rightItems:
+        return None
+
     LEFT_ENTRY = ""
     for item in leftItems:
         for entry in item:
@@ -196,15 +199,34 @@ def generateTable(leftTitle, leftItems, rightTitle, rightItems):
     return re.sub(BAD_IMAGES_RE, GOOD_IMAGES_PREFIX, MtgConsts.TABLE_FORMAT.format(**format_dict))
     
 def printSplitTables():
-    print generateTable("Green Creatures", GREEN_CREATURES, "Green Spells", GREEN_SPELLS)
-    print generateTable("Black Creatures", BLACK_CREATURES, "Black Spells", BLACK_SPELLS)
-    print generateTable("Blue Creatures", BLUE_CREATURES, "Blue Spells", BLUE_SPELLS)
-    print generateTable("Red Creatures", RED_CREATURES, "Red Spells", RED_SPELLS)
-    print generateTable("White Creatures", WHITE_CREATURES, "White Spells", WHITE_SPELLS)
-    print generateTable("Multi-Colored Creatures", MULTI_CREATURES, "Multi-Colored Spells", MULTI_SPELLS)
-    print generateTable("Hybrid Creatures", HYBRID_CREATURES, "Hybrid Spells", HYBRID_SPELLS)
-    print generateTable("Colorless Creatures", COLORLESS_CREATURES, "Colorless Spells", COLORLESS_SPELLS)
-    print generateTable("Basic Land", LAND_BASIC, "Non-Basic Land", LAND_NONBASIC)
+    green = generateTable("Green Creatures", GREEN_CREATURES, "Green Spells", GREEN_SPELLS)
+    black = generateTable("Black Creatures", BLACK_CREATURES, "Black Spells", BLACK_SPELLS)
+    blue = generateTable("Blue Creatures", BLUE_CREATURES, "Blue Spells", BLUE_SPELLS)
+    red = generateTable("Red Creatures", RED_CREATURES, "Red Spells", RED_SPELLS)
+    white = generateTable("White Creatures", WHITE_CREATURES, "White Spells", WHITE_SPELLS)
+    multi = generateTable("Multi-Colored Creatures", MULTI_CREATURES, "Multi-Colored Spells", MULTI_SPELLS)
+    hybrid = generateTable("Hybrid Creatures", HYBRID_CREATURES, "Hybrid Spells", HYBRID_SPELLS)
+    colorless = generateTable("Colorless Creatures", COLORLESS_CREATURES, "Colorless Spells", COLORLESS_SPELLS)
+    land = generateTable("Basic Land", LAND_BASIC, "Non-Basic Land", LAND_NONBASIC)
+
+    if colorless:
+        print colorless
+    if black:
+        print black
+    if blue:
+        print blue
+    if green:
+        print green
+    if red:
+        print red
+    if white:
+        print white
+    if hybrid:
+        print hybrid
+    if multi:
+        print multi
+    if land:
+        print land
 
 def getListForAppend(title, item):
     colors = getColors(item)
